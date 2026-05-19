@@ -1,0 +1,7 @@
+F:\Project Elective\BikeRepairPOS\bin\x64\Debug\BikeRepairPOS.exe.config
+F:\Project Elective\BikeRepairPOS\bin\x64\Debug\BikeRepairPOS.exe
+F:\Project Elective\BikeRepairPOS\bin\x64\Debug\BikeRepairPOS.pdb
+F:\Project Elective\BikeRepairPOS\obj\x64\Debug\BikeRepairPOS.csproj.AssemblyReference.cache
+F:\Project Elective\BikeRepairPOS\obj\x64\Debug\BikeRepairPOS.csproj.CoreCompileInputs.cache
+F:\Project Elective\BikeRepairPOS\obj\x64\Debug\BikeRepairPOS.exe
+F:\Project Elective\BikeRepairPOS\obj\x64\Debug\BikeRepairPOS.pdb
