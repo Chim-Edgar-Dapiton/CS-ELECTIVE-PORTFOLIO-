@@ -1,0 +1,5 @@
+1. len(str(num)) - This property calculates the length of the string representation of the number num. The output is an integer value representing the number of digits in num.
+
+2. sum(int(digit) for digit in str(num)) - This property calculates the sum of the digits in the number num. It converts each digit of the number to an integer using a generator expression and then computes their sum.
+
+3. num % sum(int(digit) for digit in str(num)) - This property calculates the remainder of the number num when divided by the sum of its digits. It uses the previous property to compute the sum of the digits.
