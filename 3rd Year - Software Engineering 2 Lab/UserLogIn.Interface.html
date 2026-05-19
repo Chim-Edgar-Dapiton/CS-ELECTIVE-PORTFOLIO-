@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration & Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .photo-upload {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .photo-upload input[type="file"] {
+            display: none;
+        }
+
+        .photo-upload-label {
+            display: block;
+            padding: 30px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #f8f9ff;
+        }
+
+        .photo-upload-label:hover {
+            border-color: #764ba2;
+            background-color: #f0f1ff;
+        }
+
+        .photo-upload-label p {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .photo-upload-label small {
+            color: #999;
+            display: block;
+        }
+
+        .photo-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .photo-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .photo-preview p {
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .toggle-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-text a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .profile-container {
+            text-align: center;
+        }
+
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 30px;
+            border: 5px solid #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .profile-info {
+            text-align: left;
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .profile-info-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .profile-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-info-label {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .profile-info-value {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .profile-username {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .logout-btn:hover {
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Registration Form -->
+        <div id="registerSection" class="section">
+            <div class="header">
+                <h1>Create Account</h1>
+                <p>Join us today - it takes just a few seconds</p>
+            </div>
+            <div class="content">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" id="regUsername" placeholder="Enter your username" required>
+                        <div class="error" id="regUsernameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" placeholder="Enter your email" required>
+                        <div class="error" id="regEmailError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" placeholder="Enter your password (min 6 characters)" required>
+                        <div class="error" id="regPasswordError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regConfirmPassword">Confirm Password</label>
+                        <input type="password" id="regConfirmPassword" placeholder="Confirm your password" required>
+                        <div class="error" id="regConfirmError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Profile Photo</label>
+                        <div class="photo-upload">
+                            <input type="file" id="regPhoto" accept="image/*" required>
+                            <label for="regPhoto" class="photo-upload-label">
+                                <p>📸 Click to upload photo</p>
+                                <small>or drag and drop (JPG, PNG - max 5MB)</small>
+                            </label>
+                            <div id="regPhotoPreview" class="photo-preview"></div>
+                        </div>
+                        <div class="error" id="regPhotoError"></div>
+                    </div>
+
+                    <button type="submit">Create Account</button>
+                    <div class="success" id="regSuccess"></div>
+                </form>
+
+                <div class="toggle-text">
+                    Already have an account? <a onclick="toggleForms()">Login here</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginSection" class="section hidden">
+            <div class="header">
+                <h1>Login</h1>
+                <p>Welcome back to your account</p>
+            </div>
+            <div class="content">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                        <div class="error" id="loginEmailError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        <div class="error" id="loginPasswordError"></div>
+                    </div>
+
+                    <button type="submit">Login</button>
+                    <div class="error" id="loginError"></div>
+                </form>
+
+                <div class="toggle-text">
+                    Don't have an account? <a onclick="toggleForms()">Register here</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profileSection" class="section hidden">
+            <div class="header">
+                <h1>Your Profile</h1>
+                <p>Welcome back!</p>
+            </div>
+            <div class="content profile-container">
+                <img id="profilePhoto" class="profile-photo" alt="Profile">
+                <div class="profile-username" id="profileUsername"></div>
+                
+                <div class="profile-info">
+                    <div class="profile-info-item">
+                        <div class="profile-info-label">Username</div>
+                        <div class="profile-info-value" id="profileUsernameValue"></div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-label">Email</div>
+                        <div class="profile-info-value" id="profileEmailValue"></div>
+                    </div>
+                    <div class="profile-info-item">
+                        <div class="profile-info-label">Member Since</div>
+                        <div class="profile-info-value" id="profileDateValue"></div>
+                    </div>
+                </div>
+
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initializeStorage() {
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify([]));
+            }
+        }
+
+        function toggleForms() {
+            document.getElementById('registerSection').classList.toggle('hidden');
+            document.getElementById('loginSection').classList.toggle('hidden');
+            clearErrors();
+        }
+
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error');
+            errorElements.forEach(el => el.textContent = '');
+            document.getElementById('regSuccess').textContent = '';
+            document.getElementById('loginError').textContent = '';
+        }
+
+        document.getElementById('regPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('regPhotoPreview');
+            const error = document.getElementById('regPhotoError');
+
+            error.textContent = '';
+            preview.innerHTML = '';
+
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    error.textContent = 'File size must be less than 5MB';
+                    return;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    error.textContent = 'Please select a valid image file';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.innerHTML = `
+                        <img src="${event.target.result}" alt="Preview">
+                        <p>Photo selected ✓</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const photoLabel = document.querySelector('label[for="regPhoto"]');
+        photoLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            photoLabel.style.backgroundColor = '#e8e9ff';
+        });
+
+        photoLabel.addEventListener('dragleave', () => {
+            photoLabel.style.backgroundColor = '#f8f9ff';
+        });
+
+        photoLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            photoLabel.style.backgroundColor = '#f8f9ff';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('regPhoto').files = files;
+                document.getElementById('regPhoto').dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const photoFile = document.getElementById('regPhoto').files[0];
+
+            let isValid = true;
+
+            if (username.length < 3) {
+                document.getElementById('regUsernameError').textContent = 'Username must be at least 3 characters';
+                isValid = false;
+            }
+
+            if (!email.includes('@')) {
+                document.getElementById('regEmailError').textContent = 'Please enter a valid email';
+                isValid = false;
+            }
+
+            if (password.length < 6) {
+                document.getElementById('regPasswordError').textContent = 'Password must be at least 6 characters';
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('regConfirmError').textContent = 'Passwords do not match';
+                isValid = false;
+            }
+
+            if (!photoFile) {
+                document.getElementById('regPhotoError').textContent = 'Please upload a profile photo';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            if (users.some(user => user.email === email)) {
+                document.getElementById('regEmailError').textContent = 'This email is already registered';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const photoData = event.target.result;
+
+                const newUser = {
+                    id: Date.now(),
+                    username: username,
+                    email: email,
+                    password: password,
+                    photo: photoData,
+                    createdAt: new Date().toLocaleDateString()
+                };
+
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+
+                document.getElementById('regSuccess').textContent = 'Account created successfully! Please login.';
+
+                document.getElementById('registerForm').reset();
+                document.getElementById('regPhotoPreview').innerHTML = '';
+
+                setTimeout(() => {
+                    toggleForms();
+                    clearErrors();
+                }, 2000);
+            };
+            reader.readAsDataURL(photoFile);
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                document.getElementById('loginError').textContent = 'Invalid email or password';
+                return;
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            showProfile(user);
+        });
+
+        function showProfile(user) {
+            document.getElementById('registerSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.remove('hidden');
+
+            document.getElementById('profilePhoto').src = user.photo;
+            document.getElementById('profileUsername').textContent = user.username;
+            document.getElementById('profileUsernameValue').textContent = user.username;
+            document.getElementById('profileEmailValue').textContent = user.email;
+            document.getElementById('profileDateValue').textContent = user.createdAt;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+            document.getElementById('regPhotoPreview').innerHTML = '';
+            
+            document.getElementById('profileSection').classList.add('hidden');
+            document.getElementById('registerSection').classList.remove('hidden');
+            clearErrors();
+        }
+
+        window.addEventListener('load', function() {
+            initializeStorage();
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                showProfile(JSON.parse(currentUser));
+            }
+        });
+    </script>
+</body>
+</html>
