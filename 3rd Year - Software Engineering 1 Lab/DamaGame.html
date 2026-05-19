@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Damas (International Draughts)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: #333;
+    color: white;
+  }
+  #board {
+    width: 600px;
+    height: 600px;
+    border: 10px solid #542804;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  }
+  .square {
+    background: #f0d9b5;
+    position: relative;
+  }
+  .square.black {
+    background: #b58863;
+  }
+  .piece {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+  }
+  .white { background: #fff; border: 4px solid #ddd; }
+  .black { background: #111; border: 4px solid #333; }
+  .king::after {
+    content: "♔";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    color: gold;
+  }
+  .selected {
+    box-shadow: 0 0 0 6px yellow inset !important;
+  }
+  .possible {
+    box-shadow: 0 0 0 6px lime inset;
+  }
+  .capture {
+    box-shadow: 0 0 0 6px red inset;
+  }
+  #info {
+    margin-top: 20px;
+    font-size: 1.5em;
+    text-align: center;
+  }
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1em;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <div id="board"></div>
+  <div id="info">White's turn</div>
+  <button onclick="resetGame()">New Game</button>
+</div>
+
+<script>
+// 10×10 board: 0 = empty, 1 = white man, 2 = black man, 3 = white king, 4 = black king
+let board = Array(10).fill().map(() => Array(10).fill(0));
+let currentPlayer = 1; // 1 = white (bottom), 2 = black (top)
+let selected = null;
+let mustCapture = false;
+let gameOver = false;
+
+const boardDiv = document.getElementById('board');
+const infoDiv = document.getElementById('info');
+
+// Initialize board
+function initBoard() {
+  board = Array(10).fill().map(() => Array(10).fill(0));
+  for (let row = 0; row < 4; row++) {
+    for (let col = (row % 2); col < 10; col += 2) {
+      board[row][col] = 2;           // black pieces on top
+      board[9-row][col === 0 ? 1 : col-1] = 1; // white pieces on bottom
+    }
+  }
+  render();
+  currentPlayer = 1;
+  selected = null;
+  mustCapture = false;
+  gameOver = false;
+  infoDiv.textContent = "White's turn";
+}
+
+function render() {
+  boardDiv.innerHTML = '';
+  for (let row = 0; row < 10; row++) {
+    for (let col = 0; col < 10; col++) {
+      const sq = document.createElement('div');
+      sq.className = 'square';
+      if ((row + col) % 2 === 1) sq.classList.add('black');
+      
+      const piece = board[row][col];
+      if (piece !== 0) {
+        const p = document.createElement('div');
+        p.className = 'piece';
+        if (piece === 1 || piece === 3) p.classList.add('white');
+        if (piece === 2 || piece === 4) p.classList.add('black');
+        if (piece === 3 || piece === 4) p.classList.add('king');
+        p.dataset.row = row;
+        p.dataset.col = col;
+        p.onclick = () => selectPiece(row, col);
+        sq.appendChild(p);
+      }
+      boardDiv.appendChild(sq);
+    }
+  }
+}
+
+function selectPiece(row, col) {
+  if (gameOver) return;
+  const piece = board[row][col];
+  if (!piece || (piece < 3 ? (piece === 1 ? 1 : 2) : (piece === 3 ? 1 : 2)) !== currentPlayer) return;
+
+  clearHighlights();
+  selected = {row, col};
+  document.querySelectorAll('.piece').forEach(p => {
+    if (parseInt(p.dataset.row) === row && parseInt(p.dataset.col) === col) {
+      p.classList.add('selected');
+    }
+  });
+
+  showPossibleMoves(row, col);
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.square, .piece').forEach(el => {
+    el.classList.remove('possible', 'capture', 'selected');
+  });
+}
+
+function showPossibleMoves(row, col) {
+  const piece = board[row][col];
+  const isKing = piece === 3 || piece === 4;
+  const direction = (piece === 1 || piece === 3) ? -1 : 1; // white moves up, black moves down
+
+  let hasCapture = false;
+  const moves = [];
+
+  const directions = isKing ? [[-1,-1],[-1,1],[1,-1],[1,1]] : [[direction,-1],[direction,1]];
+
+  // First check captures
+  for (const [dr, dc] of directions) {
+    const nr = row + dr, nc = col + dc;
+    const nr2 = row + dr*2, nc2 = col + dc*2;
+    if (nr >= 0 && nr < 10 && nc >= 0 && nc < 10 &&
+        nr2 >= 0 && nr2 < 10 && nc2 >= 0 && nc2 < 10) {
+      const middle = board[nr][nc];
+      const enemy = (currentPlayer === 1) ? [2,4] : [1,3];
+      if (enemy.includes(middle) && board[nr2][nc2] === 0) {
+        hasCapture = true;
+        highlightSquare(nr2, nc2, 'capture');
+        moves.push({row: nr2, col: nc2, capture: [nr, nc]});
+      }
+    }
+  }
+
+  // If there is any capture, only show capture moves
+  if (hasCapture) {
+    mustCapture = true;
+  } else {
+    mustCapture = false;
+    // Simple moves
+    for (const [dr, dc] of directions) {
+      const nr = row + dr, nc = col + dc;
+      if (nr >= 0 && nr < 10 && nc >= 0 && nc < 10 && board[nr][nc] === 0) {
+        highlightSquare(nr, nc, 'possible');
+        moves.push({row: nr, col: nc});
+      }
+    }
+  }
+
+  // Click handler for possible moves
+  moves.forEach(m => {
+    const targetRow = m.row, targetCol = m.col;
+    const squares = boardDiv.children;
+    const index = targetRow * 10 + targetCol;
+    squares[index].onclick = () => makeMove(row, col, targetRow, targetCol, m.capture);
+  });
+}
+
+function highlightSquare(row, col, type) {
+  const index = row * 10 + col;
+  boardDiv.children[index].classList.add(type);
+}
+
+function makeMove(fromRow, fromCol, toRow, toCol, capturePos) {
+  if (gameOver) return;
+
+  const piece = board[fromRow][fromCol];
+  board[toRow][toCol] = piece;
+  board[fromRow][fromCol] = 0;
+
+  let captured = false;
+  if (capturePos) {
+    const [cr, cc] = capturePos;
+    board[cr][cc] = 0;
+    captured = true;
+  }
+
+  // Promote to king
+  if ((piece === 1 && toRow === 0) || (piece === 2 && toRow === 9)) {
+    board[toRow][toCol] = piece + 2; // 1→3, 2→4
+  }
+
+  clearHighlights();
+  selected = null;
+
+  // If captured and more captures possible with the same piece, continue
+  if (captured && canContinueCapture(toRow, toCol)) {
+    selectPiece(toRow, toCol);
+    infoDiv.textContent = (currentPlayer === 1 ? "White" : "Black") + " must capture again!";
+    return;
+  }
+
+  // Switch player
+  currentPlayer = currentPlayer === 1 ? 2 : 1;
+  infoDiv.textContent = (currentPlayer === 1 ? "White" : "Black") + "'s turn";
+
+  render();
+
+  // Check for win
+  if (checkWinner()) {
+    infoDiv.textContent = (currentPlayer === 1 ? "Black" : "White") + " wins!";
+    gameOver = true;
+  }
+}
+
+function canContinueCapture(row, col) {
+  const piece = board[row][col];
+  const isKing = piece === 3 || piece === 4;
+  const directions = isKing ? [[-1,-1],[-1,1],[1,-1],[1,1]] : 
+                     (piece === 3 ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]]);
+
+  for (const [dr, dc] of directions) {
+    const nr = row + dr, nc = col + dc;
+    const nr2 = row + dr*2, nc2 = col + dc*2;
+    if (nr >= 0 && nr < 10 && nc >= 0 && nc < 10 &&
+        nr2 >= 0 && nr2 < 10 && nc2 >= 0 && nc2 < 10) {
+      const middle = board[nr][nc];
+      const enemy = (piece === 3 || piece === 1) ? [2,4] : [1,3];
+      if (enemy.includes(middle) && board[nr2][nc2] === 0) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function checkWinner() {
+  let whitePieces = 0, blackPieces = 0;
+  let whiteCanMove = false, blackCanMove = false;
+
+  for (let r = 0; r < 10; r++) {
+    for (let c = 0; c < 10; c++) {
+      const p = board[r][c];
+      if (p === 1 || p === 3) whitePieces++;
+      if (p === 2 || p === 4) blackPieces++;
+    }
+  }
+
+  if (whitePieces === 0) return true;
+  if (blackPieces === 0) return true;
+
+  // Very simple move check (can be improved)
+  // For now we just declare no winner until pieces are gone
+  return false;
+}
+
+function resetGame() {
+  initBoard();
+}
+
+// Start the game
+initBoard();
+</script>
+
+</body>
+</html>

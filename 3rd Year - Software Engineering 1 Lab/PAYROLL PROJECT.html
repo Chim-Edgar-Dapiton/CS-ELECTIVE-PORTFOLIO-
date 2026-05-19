@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Dashboard and Payslip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .dashboard {
+            margin-bottom: 50px;
+        }
+        .dashboard h1, .payslip h1 {
+            text-align: center;
+            color: #333;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .summary-table th, .summary-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .summary-table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .summary-table .total-row {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+        .payslip {
+            page-break-before: always;
+        }
+        .payslip-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .payslip-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .info-block {
+            width: 48%;
+        }
+        .info-block h3 {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            margin: 0 0 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .amount {
+            text-align: right;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+        .net-pay {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+        }
+        #dynamicInputs > div {
+            display: none;
+            margin-top: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #salaryResult {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background-color: #f8fdff;
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; }
+            .dashboard { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="dashboard">
+            <h1>Payroll Dashboard - December 2025</h1>
+            <p>Overview of employee payrolls.</p>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Hours Worked</th>
+                        <th>Hourly Rate</th>
+                        <th>Gross Pay</th>
+                        <th>Deductions</th>
+                        <th>Net Pay</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EMP001</td>
+                        <td>Edgar Dapiton</td>
+                        <td>160</td>
+                        <td>70</td>
+                        <td>11,200</td>
+                        <td>836</td>
+                        <td>10,364</td>
+                    </tr>
+                    <tr>
+                        <td>EMP002</td>
+                        <td>Chim Edgar</td>
+                        <td>152</td>
+                        <td>50</td>
+                        <td>7,600</td>
+                        <td>680</td>
+                        <td>6,920</td>
+                    </tr>
+                    <tr>
+                        <td>EMP003</td>
+                        <td>Chim Dapiton</td>
+                        <td>168</td>
+                        <td>100</td>
+                        <td>16,800</td>
+                        <td>850</td>
+                        <td>15,950</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="2">Totals</td>
+                        <td>480</td>
+                        <td></td>
+                        <td>35,600</td>
+                        <td>2,366</td>
+                        <td>33,234</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="payslip">
+            <div class="payslip-header">
+                <h2>Tagbilaran Tech Labs.</h2>
+                <p>Tagbilaran City, Bohol</p>
+                <p>Phone: 09753133123 | Email: hr@tagbilarantechlabs.com</p>
+                <h3>Payroll Calculator - December 2025</h3>
+            </div>
+
+            <h2>Employee Payroll Calculator</h2>
+            <div id="inputForm">
+                <label for="name">Name:</label>
+                <input type="text" id="name" placeholder="Enter full name"><br>
+
+                <label for="empId">Employee ID:</label>
+                <input type="text" id="empId" placeholder="e.g. EMP001"><br>
+
+                <label for="dept">Department:</label>
+                <input type="text" id="dept" placeholder="e.g. Development"><br>
+
+                <label for="designation">Designation:</label>
+                <input type="text" id="designation" placeholder="e.g. Senior Developer"><br>
+
+                <label for="payType">Pay Period Type:</label>
+                <select id="payType" onchange="togglePayInputs()">
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                </select><br>
+
+                <div id="dynamicInputs">
+                    <!-- Hourly Inputs -->
+                    <div id="hourlyInputs">
+                        <label for="hoursWorked">Hours Worked:</label>
+                        <input type="number" id="hoursWorked" placeholder="e.g. 160" step="0.5"><br>
+
+                        <label for="hourlyRate">Hourly Rate (₱):</label>
+                        <input type="number" id="hourlyRate" placeholder="e.g. 70" step="0.01"><br>
+                    </div>
+
+                    <!-- Daily Inputs -->
+                    <div id="dailyInputs">
+                        <label for="daysWorked">Days Worked:</label>
+                        <input type="number" id="daysWorked" placeholder="e.g. 20" step="0.5"><br>
+
+                        <label for="dailyRate">Daily Rate (₱):</label>
+                        <input type="number" id="dailyRate" placeholder="e.g. 560" step="0.01"><br>
+                    </div>
+                </div>
+
+                <br>
+                <button type="button" onclick="calculatePayroll()">Calculate Payroll</button>
+            </div>
+
+            <div id="salaryResult"></div>
+        </section>
+    </div>
+
+    <script>
+        // Show correct input fields based on pay type
+        function togglePayInputs() {
+            const payType = document.getElementById('payType').value;
+            document.getElementById('hourlyInputs').style.display = payType === 'hourly' ? 'block' : 'none';
+            document.getElementById('dailyInputs').style.display = payType === 'daily' ? 'block' : 'none';
+        }
+
+        // Initial call to set correct visibility
+        togglePayInputs();
+
+        // Existing employee data from dashboard (December 2025)
+        const existingEmployees = {
+            "EMP001": {
+                name: "Edgar Dapiton",
+                payType: "hourly",
+                hoursWorked: 160,
+                hourlyRate: 70,
+                grossPay: 11200,
+                deductions: 836,
+                netPay: 10364
+            },
+            "EMP002": {
+                name: "Chim Edgar",
+                payType: "hourly",
+                hoursWorked: 152,
+                hourlyRate: 50,
+                grossPay: 7600,
+                deductions: 680,
+                netPay: 6920
+            },
+            "EMP003": {
+                name: "Chim Dapiton",
+                payType: "hourly",
+                hoursWorked: 168,
+                hourlyRate: 100,
+                grossPay: 16800,
+                deductions: 850,
+                netPay: 15950
+            }
+        };
+
+        function calculatePayroll() {
+            const name = document.getElementById('name').value.trim();
+            const empId = document.getElementById('empId').value.trim().toUpperCase();
+            const dept = document.getElementById('dept').value.trim() || 'Not specified';
+            const designation = document.getElementById('designation').value.trim() || 'Not specified';
+            const payType = document.getElementById('payType').value;
+
+            if (!name || !empId) {
+                alert('Please fill in Name and Employee ID!');
+                return;
+            }
+
+            let grossPay = 0;
+            let detailsText = '';
+
+            // Check if employee exists in records
+            if (existingEmployees[empId]) {
+                if (existingEmployees[empId].name.toLowerCase() !== name.toLowerCase()) {
+                    alert(`Warning: Employee ID ${empId} belongs to ${existingEmployees[empId].name}!`);
+                    return;
+                }
+                const emp = existingEmployees[empId];
+                grossPay = emp.grossPay;
+                detailsText = `<p style="color: #28a745; margin-top: 10px;">*Data pulled from December 2025 payroll records (Hourly)</p>`;
+            } else {
+                // Calculate for new/custom employee
+                if (payType === 'hourly') {
+                    const hours = parseFloat(document.getElementById('hoursWorked').value);
+                    const rate = parseFloat(document.getElementById('hourlyRate').value);
+                    if (isNaN(hours) || isNaN(rate) || hours < 0 || rate < 0) {
+                        alert('Please enter valid hours and hourly rate!');
+                        return;
+                    }
+                    grossPay = hours * rate;
+                    detailsText = `<p>Calculated: ${hours} hours × ₱${rate}/hr</p>`;
+                } else if (payType === 'daily') {
+                    const days = parseFloat(document.getElementById('daysWorked').value);
+                    const rate = parseFloat(document.getElementById('dailyRate').value);
+                    if (isNaN(days) || isNaN(rate) || days < 0 || rate < 0) {
+                        alert('Please enter valid days and daily rate!');
+                        return;
+                    }
+                    grossPay = days * rate;
+                    detailsText = `<p>Calculated: ${days} days × ₱${rate}/day</p>`;
+                }
+            }
+
+            // Standard deduction: ~7.5% (adjust as needed)
+            const deductions = grossPay * 0.075;
+            const netPay = grossPay - deductions;
+
+            // Display result
+            const resultDiv = document.getElementById('salaryResult');
+            resultDiv.innerHTML = `
+                <h3>Payroll Details</h3>
+                <table>
+                    <tr><th>Name:</th><td>${name}</td></tr>
+                    <tr><th>Employee ID:</th><td>${empId}</td></tr>
+                    <tr><th>Department:</th><td>${dept}</td></tr>
+                    <tr><th>Designation:</th><td>${designation}</td></tr>
+                    <tr><th>Pay Type:</th><td>${payType.charAt(0).toUpperCase() + payType.slice(1)}</td></tr>
+                    <tr><th>Gross Pay:</th><td>₱${grossPay.toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><th>Deductions (7.5%):</th><td>₱${deductions.toFixed(2).toLocaleString()}</td></tr>
+                    <tr><th style="background: #007bff; color: white;">Net Pay:</th>
+                        <td style="font-weight: bold; font-size: 1.2em;">₱${netPay.toFixed(2).toLocaleString()}</td></tr>
+                </table>
+                ${detailsText}
+            `;
+        }
+    </script>
+</body>
+</html>
